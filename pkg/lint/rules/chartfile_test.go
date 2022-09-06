@@ -17,6 +17,8 @@ limitations under the License.
 package rules
 
 import (
+	"fmt"
+	"github.com/stretchr/testify/assert"
 	"os"
 	"path/filepath"
 	"strings"
@@ -61,13 +63,6 @@ func TestValidateChartYamlFormat(t *testing.T) {
 	err = validateChartYamlFormat(nil)
 	if err != nil {
 		t.Errorf("validateChartYamlFormat to return no error, got a linter error")
-	}
-}
-
-func TestValidateChartName(t *testing.T) {
-	err := validateChartName(badChart)
-	if err == nil {
-		t.Errorf("validateChartName to return a linter error, got no error")
 	}
 }
 
@@ -244,4 +239,48 @@ func TestChartfile(t *testing.T) {
 			t.Errorf("Unexpected message 2: %s", msgs[2].Err)
 		}
 	})
+}
+
+func Test_validateChartName(t *testing.T) {
+	tests := []struct {
+		name    string
+		cm      *chart.Metadata
+		wantErr assert.ErrorAssertionFunc
+	}{
+		{
+			name:    "no chart name so returns an error",
+			cm:      &chart.Metadata{Name: ""},
+			wantErr: assert.Error,
+		},
+		{
+			name:    "chart name begins with a number so returns an error",
+			cm:      &chart.Metadata{Name: "1at-the-beginning"},
+			wantErr: assert.Error,
+		},
+		{
+			name:    "chart has only one letter before dash so returns an error",
+			cm:      &chart.Metadata{Name: "a-bad-chart-name"},
+			wantErr: assert.NoError,
+		},
+		{
+			name:    "valid chart name with dashes so returns no error",
+			cm:      &chart.Metadata{Name: "good-chart-name"},
+			wantErr: assert.NoError,
+		},
+		{
+			name:    "valid chart name without dashes so returns no error",
+			cm:      &chart.Metadata{Name: "name"},
+			wantErr: assert.NoError,
+		},
+		{
+			name:    "chart has special characters which isn't a dash so returns error",
+			cm:      &chart.Metadata{Name: "some.-odd?chart,name"},
+			wantErr: assert.Error,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.wantErr(t, validateChartName(tt.cm), fmt.Sprintf("validateChartName(%v)", tt.cm.Name))
+		})
+	}
 }
