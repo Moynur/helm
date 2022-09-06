@@ -22,12 +22,12 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"sigs.k8s.io/yaml"
 	"strings"
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/asaskevich/govalidator"
 	"github.com/pkg/errors"
+	"sigs.k8s.io/yaml"
 
 	"helm.sh/helm/v3/pkg/chart"
 	"helm.sh/helm/v3/pkg/chartutil"
