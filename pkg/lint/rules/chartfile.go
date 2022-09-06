@@ -21,11 +21,13 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"regexp"
+	"sigs.k8s.io/yaml"
+	"strings"
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/asaskevich/govalidator"
 	"github.com/pkg/errors"
-	"sigs.k8s.io/yaml"
 
 	"helm.sh/helm/v3/pkg/chart"
 	"helm.sh/helm/v3/pkg/chartutil"
@@ -103,10 +105,46 @@ func validateChartYamlFormat(chartFileError error) error {
 	return nil
 }
 
+type chartNameValidator func(string) error
+
 func validateChartName(cf *chart.Metadata) error {
-	if cf.Name == "" {
+	rules := []chartNameValidator{
+		isNotEmpty,
+		doesNotContainSpecialCharacters,
+		beginsWithAlphabeticCharacter,
+	}
+	for _, rule := range rules {
+		if rule(cf.Name) != nil {
+			return fmt.Errorf("chart name: %s is invalid: %w", cf.Name, rule(cf.Name))
+		}
+	}
+
+	return nil
+}
+
+func isNotEmpty(name string) error {
+	if name == "" {
 		return errors.New("name is required")
 	}
+	return nil
+}
+
+func doesNotContainSpecialCharacters(name string) error {
+	if strings.ContainsAny(name, ".?/") {
+		return errors.New("name contains special characters")
+	}
+	return nil
+}
+
+func beginsWithAlphabeticCharacter(name string) error {
+	match, err := regexp.MatchString("^[a-z]", name[0:1])
+	if err != nil {
+		return errors.New("internal error validation chart name")
+	}
+	if !match {
+		return errors.New("name must begin with lowercase alphabetic character (a-z)")
+	}
+
 	return nil
 }
 
