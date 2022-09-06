@@ -22,7 +22,6 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"strings"
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/asaskevich/govalidator"
@@ -110,7 +109,7 @@ type chartNameValidator func(string) error
 func validateChartName(cf *chart.Metadata) error {
 	rules := []chartNameValidator{
 		isNotEmpty,
-		doesNotContainSpecialCharacters,
+		doesNotContainInvalidCharacters,
 		beginsWithAlphabeticCharacter,
 	}
 	for _, rule := range rules {
@@ -129,10 +128,15 @@ func isNotEmpty(name string) error {
 	return nil
 }
 
-func doesNotContainSpecialCharacters(name string) error {
-	if strings.ContainsAny(name, ".?/") {
-		return errors.New("name contains special characters")
+func doesNotContainInvalidCharacters(name string) error {
+	match, err := regexp.MatchString("^[a-zA-Z0-9-]*$", name)
+	if err != nil {
+		return errors.New("internal error validation chart name")
 	}
+	if !match {
+		return errors.New("name must begin with lowercase alphabetic character (a-z)")
+	}
+
 	return nil
 }
 

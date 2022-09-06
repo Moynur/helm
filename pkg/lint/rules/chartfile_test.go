@@ -241,7 +241,7 @@ func TestChartfile(t *testing.T) {
 	})
 }
 
-func Test_validateChartName(t *testing.T) {
+func TestValidateChartName(t *testing.T) {
 	tests := []struct {
 		name    string
 		cm      *chart.Metadata
