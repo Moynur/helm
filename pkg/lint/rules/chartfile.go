@@ -131,7 +131,7 @@ func isNotEmpty(name string) error {
 func doesNotContainInvalidCharacters(name string) error {
 	match, err := regexp.MatchString("^[a-zA-Z0-9-]*$", name)
 	if err != nil {
-		return errors.New("internal error validation chart name")
+		return errors.New("internal error validating chart name")
 	}
 	if !match {
 		return errors.New("name must begin with lowercase alphabetic character (a-z)")
@@ -143,7 +143,7 @@ func doesNotContainInvalidCharacters(name string) error {
 func beginsWithAlphabeticCharacter(name string) error {
 	match, err := regexp.MatchString("^[a-z]", name[0:1])
 	if err != nil {
-		return errors.New("internal error validation chart name")
+		return errors.New("internal error validating chart name")
 	}
 	if !match {
 		return errors.New("name must begin with lowercase alphabetic character (a-z)")
