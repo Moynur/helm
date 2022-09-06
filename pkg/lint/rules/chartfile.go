@@ -129,7 +129,7 @@ func isNotEmpty(name string) error {
 }
 
 func doesNotContainInvalidCharacters(name string) error {
-	match, err := regexp.MatchString("^[a-zA-Z0-9-]*$", name)
+	match, err := regexp.MatchString("^[a-z0-9-]*$", name)
 	if err != nil {
 		return errors.New("internal error validating chart name")
 	}
