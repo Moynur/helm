@@ -113,8 +113,8 @@ func validateChartName(cf *chart.Metadata) error {
 		beginsWithAlphabeticCharacter,
 	}
 	for _, rule := range rules {
-		if rule(cf.Name) != nil {
-			return fmt.Errorf("chart name: %s is invalid: %w", cf.Name, rule(cf.Name))
+		if err := rule(cf.Name); err != nil {
+			return err
 		}
 	}
 
@@ -131,7 +131,7 @@ func isNotEmpty(name string) error {
 func doesNotContainInvalidCharacters(name string) error {
 	match, err := regexp.MatchString("^[a-z0-9-]*$", name)
 	if err != nil {
-		return errors.New("internal error validating chart name")
+		return fmt.Errorf("internal error validating chart name %w", err)
 	}
 	if !match {
 		return errors.New("name must begin with lowercase alphabetic character (a-z)")
@@ -143,7 +143,7 @@ func doesNotContainInvalidCharacters(name string) error {
 func beginsWithAlphabeticCharacter(name string) error {
 	match, err := regexp.MatchString("^[a-z]", name[0:1])
 	if err != nil {
-		return errors.New("internal error validating chart name")
+		return fmt.Errorf("internal error validating chart name %w", err)
 	}
 	if !match {
 		return errors.New("name must begin with lowercase alphabetic character (a-z)")

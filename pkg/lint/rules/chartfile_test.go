@@ -258,11 +258,6 @@ func TestValidateChartName(t *testing.T) {
 			wantErr: assert.Error,
 		},
 		{
-			name:    "chart has only one letter before dash so returns an error",
-			cm:      &chart.Metadata{Name: "a-bad-chart-name"},
-			wantErr: assert.NoError,
-		},
-		{
 			name:    "valid chart name with dashes so returns no error",
 			cm:      &chart.Metadata{Name: "good-chart-name"},
 			wantErr: assert.NoError,
