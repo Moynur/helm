@@ -273,6 +273,11 @@ func TestValidateChartName(t *testing.T) {
 			wantErr: assert.Error,
 		},
 		{
+			name:    "chart name has underscore special characters which isn't a dash so returns error",
+			cm:      &chart.Metadata{Name: "some_slightly_wrong_chart_name"},
+			wantErr: assert.Error,
+		},
+		{
 			name:    "chart name has upper case characters so returns error",
 			cm:      &chart.Metadata{Name: "bad-Chart-name"},
 			wantErr: assert.Error,

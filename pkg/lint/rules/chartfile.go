@@ -134,7 +134,7 @@ func doesNotContainInvalidCharacters(name string) error {
 		return fmt.Errorf("internal error validating chart name %w", err)
 	}
 	if !match {
-		return errors.New("name must begin with lowercase alphabetic character (a-z)")
+		return errors.New("name must not contain any upper case letters or any special characters other than '-'")
 	}
 
 	return nil
