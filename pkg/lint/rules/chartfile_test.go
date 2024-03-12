@@ -69,18 +69,6 @@ func TestValidateChartYamlFormat(t *testing.T) {
 	}
 }
 
-func TestValidateChartName(t *testing.T) {
-	err := validateChartName(badChart)
-	if err == nil {
-		t.Errorf("validateChartName to return a linter error, got no error")
-	}
-
-	err = validateChartName(badChartName)
-	if err == nil {
-		t.Error("expected validateChartName to return a linter error for an invalid name, got no error")
-	}
-}
-
 func TestValidateChartVersion(t *testing.T) {
 	var failTest = []struct {
 		Version  string
@@ -295,6 +283,16 @@ func TestValidateChartName(t *testing.T) {
 		{
 			name:    "chart name has upper case characters so returns error",
 			cm:      &chart.Metadata{Name: "bad-Chart-name"},
+			wantErr: assert.Error,
+		},
+		{
+			name:    "bad chart name",
+			cm:      badChartName,
+			wantErr: assert.Error,
+		},
+		{
+			name:    "bad chart",
+			cm:      badChart,
 			wantErr: assert.Error,
 		},
 	}
