@@ -285,6 +285,16 @@ func TestValidateChartName(t *testing.T) {
 			cm:      &chart.Metadata{Name: "bad-Chart-name"},
 			wantErr: assert.Error,
 		},
+		{
+			name:    "bad chart name",
+			cm:      badChartName,
+			wantErr: assert.Error,
+		},
+		{
+			name:    "bad chart",
+			cm:      badChart,
+			wantErr: assert.Error,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

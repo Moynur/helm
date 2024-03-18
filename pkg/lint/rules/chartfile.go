@@ -103,16 +103,22 @@ func validateChartYamlFormat(chartFileError error) error {
 	return nil
 }
 
-type chartNameValidator func(string) error
+const (
+	chartNamePattern      = "^[a-z0-9-]*$"
+	chartNameStartPattern = "^[a-z]"
+)
+
+type chartNameValidator func(*chart.Metadata) error
 
 func validateChartName(cf *chart.Metadata) error {
 	rules := []chartNameValidator{
 		isNotEmpty,
+		nameIsNotPath,
 		doesNotContainInvalidCharacters,
 		beginsWithAlphabeticCharacter,
 	}
 	for _, rule := range rules {
-		if err := rule(cf.Name); err != nil {
+		if err := rule(cf); err != nil {
 			return err
 		}
 	}
@@ -120,22 +126,23 @@ func validateChartName(cf *chart.Metadata) error {
 	return nil
 }
 
-func isNotEmpty(name string) error {
-	if name == "" {
+func isNotEmpty(cf *chart.Metadata) error {
+	if cf.Name == "" {
 		return errors.New("name is required")
-	}
-	name := filepath.Base(cf.Name)
-	if name != cf.Name {
-		return fmt.Errorf("chart name %q is invalid", cf.Name)
 	}
 	return nil
 }
 
-func doesNotContainInvalidCharacters(name string) error {
-	match, err := regexp.MatchString("^[a-z0-9-]*$", name)
-	if err != nil {
-		return fmt.Errorf("internal error validating chart name %w", err)
+func nameIsNotPath(cf *chart.Metadata) error {
+	name := filepath.Base(cf.Name)
+	if name != cf.Name {
+		return fmt.Errorf("chart name '%s' should not include a path", cf.Name)
 	}
+	return nil
+}
+
+func doesNotContainInvalidCharacters(cf *chart.Metadata) error {
+	match, _ := regexp.MatchString(chartNamePattern, cf.Name)
 	if !match {
 		return errors.New("name must not contain any upper case letters or any special characters other than '-'")
 	}
@@ -143,13 +150,10 @@ func doesNotContainInvalidCharacters(name string) error {
 	return nil
 }
 
-func beginsWithAlphabeticCharacter(name string) error {
-	match, err := regexp.MatchString("^[a-z]", name[0:1])
-	if err != nil {
-		return fmt.Errorf("internal error validating chart name %w", err)
-	}
+func beginsWithAlphabeticCharacter(cf *chart.Metadata) error {
+	match, _ := regexp.MatchString(chartNameStartPattern, cf.Name[0:1])
 	if !match {
-		return errors.New("name must begin with lowercase alphabetic character (a-z)")
+		return errors.New("name must begin with a lowercase alphabetic character (a-z)")
 	}
 
 	return nil
